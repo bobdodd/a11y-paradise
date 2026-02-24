@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found — A11y Paradise{% endblock %}
+
+{% block content %}
+<h2>Page Not Found</h2>
+<p>The page you requested could not be found.</p>
+<p>Return to the <a href="{{ url_for('home') }}">home page</a>, or try searching the <a href="{{ url_for('glossary_index') }}">glossary</a> or <a href="{{ url_for('reviews_index') }}">literature reviews</a>.</p>
+{% endblock %}

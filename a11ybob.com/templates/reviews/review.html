@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ review.title }} — Literature Reviews — A11y Paradise{% endblock %}
+
+{% block content %}
+<nav aria-label="Breadcrumb" class="breadcrumb">
+    <ol>
+        <li><a href="{{ url_for('reviews_index') }}">Literature Reviews</a></li>
+        <li aria-current="page">{{ review.title }}</li>
+    </ol>
+</nav>
+
+<article>
+    <h2>{{ review.title }}</h2>
+
+    <dl class="review-details">
+        <dt>Authors</dt>
+        <dd>{{ review.authors | join(', ') }}</dd>
+
+        {% if review.year %}
+        <dt>Year</dt>
+        <dd>{{ review.year }}</dd>
+        {% endif %}
+
+        {% if review.publication %}
+        <dt>Publication</dt>
+        <dd>{{ review.publication }}</dd>
+        {% endif %}
+
+        {% if review.doi %}
+        <dt>DOI</dt>
+        <dd><a href="https://doi.org/{{ review.doi }}">{{ review.doi }}</a></dd>
+        {% endif %}
+
+        {% if review.standards_referenced %}
+        <dt>Standards Referenced</dt>
+        <dd>{{ review.standards_referenced | join(', ') }}</dd>
+        {% endif %}
+    </dl>
+
+    {% if review.summary %}
+    <section>
+        <h3>Summary</h3>
+        <div>{{ review.summary }}</div>
+    </section>
+    {% endif %}
+
+    {% if review.key_findings %}
+    <section>
+        <h3>Key Findings</h3>
+        <div>{{ review.key_findings }}</div>
+    </section>
+    {% endif %}
+
+    {% if review.relevance %}
+    <section>
+        <h3>Relevance to Practice</h3>
+        <div>{{ review.relevance }}</div>
+    </section>
+    {% endif %}
+
+    {% if review.tags %}
+    <div class="term-meta">
+        <h3>Tags</h3>
+        <ul class="tag-list">
+            {% for tag in review.tags %}
+            <li><a href="{{ url_for('reviews_index', tag=tag) }}">{{ tag }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</article>
+{% endblock %}

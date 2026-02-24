@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Literature Reviews — A11y Paradise{% endblock %}
+
+{% block content %}
+<h2>Literature Reviews</h2>
+<p>Reviewed research papers, articles, and publications relevant to digital accessibility.</p>
+
+<form class="search-form" action="{{ url_for('reviews_index') }}" method="get" role="search" aria-label="Search literature reviews">
+    <div class="search-row">
+        <label for="review-search" class="sr-only">Search reviews</label>
+        <input
+            type="search"
+            id="review-search"
+            name="q"
+            value="{{ query }}"
+            placeholder="Search titles, authors, findings..."
+            aria-describedby="review-search-hint"
+        >
+        <button type="submit">Search</button>
+    </div>
+    <p id="review-search-hint" class="search-hint">Search across titles, authors, summaries, and findings.</p>
+
+    {% if tags %}
+    <div class="filter-row">
+        <label for="review-tag">Filter by tag:</label>
+        <select id="review-tag" name="tag" onchange="this.form.submit()">
+            <option value="">All tags</option>
+            {% for t in tags %}
+            <option value="{{ t }}"{% if t == selected_tag %} selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+</form>
+
+<div aria-live="polite">
+    {% if query or selected_tag %}
+    <p class="results-count">{{ reviews|length }} result{{ 's' if reviews|length != 1 }} found{% if query %} for "{{ query }}"{% endif %}{% if selected_tag %} tagged {{ selected_tag }}{% endif %}.</p>
+    {% endif %}
+</div>
+
+{% if reviews %}
+<ul class="review-list">
+    {% for r in reviews %}
+    <li class="review-card">
+        <h3><a href="{{ url_for('review_detail', review_id=r._id) }}">{{ r.title }}</a></h3>
+        <p class="review-meta">
+            {{ r.authors | join(', ') }}
+            {% if r.year %} ({{ r.year }}){% endif %}
+            {% if r.publication %} — <em>{{ r.publication }}</em>{% endif %}
+        </p>
+        {% if r.summary %}
+        <p>{{ r.summary[:250] }}{% if r.summary|length > 250 %}&hellip;{% endif %}</p>
+        {% endif %}
+        {% if r.tags %}
+        <ul class="tag-list" aria-label="Tags">
+            {% for tag in r.tags %}
+            <li><a href="{{ url_for('reviews_index', tag=tag) }}">{{ tag }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% elif query or selected_tag %}
+<p>No reviews found. Try a different search or <a href="{{ url_for('reviews_index') }}">browse all reviews</a>.</p>
+{% else %}
+<p>No literature reviews have been added yet.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Glossary — A11y Paradise{% endblock %}
+
+{% block content %}
+<h2>Glossary</h2>
+<p>Searchable terminology from accessibility, web standards, and related fields.</p>
+
+<form class="search-form" action="{{ url_for('glossary_index') }}" method="get" role="search" aria-label="Search glossary">
+    <div class="search-row">
+        <label for="glossary-search" class="sr-only">Search terms</label>
+        <input
+            type="search"
+            id="glossary-search"
+            name="q"
+            value="{{ query }}"
+            placeholder="Search terms, definitions..."
+            aria-describedby="glossary-search-hint"
+        >
+        <button type="submit">Search</button>
+    </div>
+    <p id="glossary-search-hint" class="search-hint">Search across terms, aliases, and definitions.</p>
+
+    {% if categories %}
+    <div class="filter-row">
+        <label for="glossary-category">Filter by category:</label>
+        <select id="glossary-category" name="category" onchange="this.form.submit()">
+            <option value="">All categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}"{% if cat == selected_category %} selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+</form>
+
+<div aria-live="polite">
+    {% if query or selected_category %}
+    <p class="results-count">{{ terms|length }} result{{ 's' if terms|length != 1 }} found{% if query %} for "{{ query }}"{% endif %}{% if selected_category %} in {{ selected_category }}{% endif %}.</p>
+    {% endif %}
+</div>
+
+{% if terms %}
+<dl class="glossary-list">
+    {% for t in terms %}
+    <div class="glossary-entry">
+        <dt>
+            <a href="{{ url_for('glossary_term', term_id=t._id) }}">{{ t.term }}</a>
+            {% if t.aka %}
+            <span class="aka">({{ t.aka | join(', ') }})</span>
+            {% endif %}
+        </dt>
+        <dd>
+            {{ t.definition[:200] }}{% if t.definition|length > 200 %}&hellip;{% endif %}
+            {% if t.category %}
+            <ul class="tag-list" aria-label="Categories">
+                {% for cat in t.category %}
+                <li><a href="{{ url_for('glossary_index', category=cat) }}">{{ cat }}</a></li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </dd>
+    </div>
+    {% endfor %}
+</dl>
+{% elif query or selected_category %}
+<p>No terms found. Try a different search or <a href="{{ url_for('glossary_index') }}">browse all terms</a>.</p>
+{% else %}
+<p>No glossary terms have been added yet.</p>
+{% endif %}
+{% endblock %}

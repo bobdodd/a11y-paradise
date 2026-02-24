@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ term.term }} — Glossary — A11y Paradise{% endblock %}
+
+{% block content %}
+<nav aria-label="Breadcrumb" class="breadcrumb">
+    <ol>
+        <li><a href="{{ url_for('glossary_index') }}">Glossary</a></li>
+        <li aria-current="page">{{ term.term }}</li>
+    </ol>
+</nav>
+
+<article>
+    <h2>{{ term.term }}</h2>
+
+    {% if term.aka %}
+    <p class="aka-line"><strong>Also known as:</strong> {{ term.aka | join(', ') }}</p>
+    {% endif %}
+
+    <div class="term-definition">
+        {{ term.definition }}
+    </div>
+
+    {% if term.category %}
+    <div class="term-meta">
+        <h3>Categories</h3>
+        <ul class="tag-list">
+            {% for cat in term.category %}
+            <li><a href="{{ url_for('glossary_index', category=cat) }}">{{ cat }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if related %}
+    <div class="term-meta">
+        <h3>Related Terms</h3>
+        <ul>
+            {% for r in related %}
+            <li><a href="{{ url_for('glossary_term', term_id=r._id) }}">{{ r.term }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if term.sources %}
+    <div class="term-meta">
+        <h3>Sources</h3>
+        <ul>
+            {% for src in term.sources %}
+            <li><a href="{{ src }}">{{ src }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</article>
+{% endblock %}

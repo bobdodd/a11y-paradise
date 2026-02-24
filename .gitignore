@@ -3,3 +3,17 @@ research papers/
 
 # macOS
 .DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Environment variables (contains secrets)
+.env
+
+# IDE
+.vscode/
+.idea/
