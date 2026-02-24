@@ -1,0 +1,5 @@
+# Research papers - excluded due to copyright restrictions
+research papers/
+
+# macOS
+.DS_Store
