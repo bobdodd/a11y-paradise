@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from config import Config
+from admin import admin_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -9,13 +10,20 @@ app.config.from_object(Config)
 # MongoDB connection
 client = MongoClient(app.config["MONGO_URI"])
 db = client[app.config["MONGO_DB"]]
+app.config["db"] = db
+
+# Register admin blueprint
+app.register_blueprint(admin_bp)
 
 
 # --- Context processor for nav highlighting ---
 
 @app.context_processor
 def nav_context():
-    return {"current_path": request.path}
+    return {
+        "current_path": request.path,
+        "is_admin": session.get("admin", False),
+    }
 
 
 # --- Static pages ---

@@ -1,0 +1,33 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Manage Glossary — A11y Paradise{% endblock %}
+{% block admin_content %}
+<h2>Manage Glossary Terms</h2>
+<p><a href="{{ url_for('admin.glossary_add') }}" class="btn btn-primary">Add new term</a></p>
+
+{% if terms %}
+<table class="admin-table">
+    <caption class="sr-only">Glossary terms</caption>
+    <thead>
+        <tr>
+            <th scope="col">Term</th>
+            <th scope="col">Categories</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for t in terms %}
+        <tr>
+            <td>{{ t.term }}</td>
+            <td>{{ t.category | join(', ') if t.category else '—' }}</td>
+            <td>
+                <a href="{{ url_for('admin.glossary_edit', term_id=t._id) }}">Edit<span class="sr-only"> {{ t.term }}</span></a>
+                <a href="{{ url_for('admin.glossary_delete', term_id=t._id) }}">Delete<span class="sr-only"> {{ t.term }}</span></a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No glossary terms yet.</p>
+{% endif %}
+{% endblock %}

@@ -24,11 +24,23 @@
                 <li><a href="{{ url_for('glossary_index') }}"{% if current_path.startswith('/glossary') %} aria-current="page"{% endif %}>Glossary</a></li>
                 <li><a href="{{ url_for('reviews_index') }}"{% if current_path.startswith('/reviews') %} aria-current="page"{% endif %}>Literature Reviews</a></li>
                 <li><a href="{{ url_for('about') }}"{% if current_path == '/about' %} aria-current="page"{% endif %}>About</a></li>
+                {% if is_admin %}
+                <li><a href="{{ url_for('admin.dashboard') }}"{% if current_path.startswith('/admin') %} aria-current="page"{% endif %}>Admin</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>
 
     <main id="main" class="site-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages" role="status">
+            {% for category, message in messages %}
+            <p class="flash flash-{{ category }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
         {% block content %}{% endblock %}
     </main>
 

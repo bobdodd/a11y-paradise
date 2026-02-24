@@ -1,0 +1,64 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}{{ "Edit" if editing else "Add" }} Glossary Term — A11y Paradise{% endblock %}
+{% block admin_content %}
+<h2>{{ "Edit" if editing else "Add" }} Glossary Term</h2>
+
+{% if errors %}
+<div class="form-errors" role="alert">
+    <h3>Please fix the following errors:</h3>
+    <ul>
+        {% for error in errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="post" class="admin-form">
+    <div class="form-group">
+        <label for="term">Term <span aria-hidden="true">*</span></label>
+        <input type="text" id="term" name="term"
+               value="{{ form.get('term', '') or (term.term if editing else '') }}"
+               required aria-required="true">
+    </div>
+
+    <div class="form-group">
+        <label for="aka">Also known as</label>
+        <textarea id="aka" name="aka" rows="3"
+                  aria-describedby="aka-hint">{{ form.get('aka', '') or (term.aka | join('\n') if editing and term.aka else '') }}</textarea>
+        <p id="aka-hint" class="form-hint">One alias per line.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="definition">Definition <span aria-hidden="true">*</span></label>
+        <textarea id="definition" name="definition" rows="6"
+                  required aria-required="true">{{ form.get('definition', '') or (term.definition if editing else '') }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="category">Categories</label>
+        <textarea id="category" name="category" rows="3"
+                  aria-describedby="category-hint">{{ form.get('category', '') or (term.category | join('\n') if editing and term.category else '') }}</textarea>
+        <p id="category-hint" class="form-hint">One category per line.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="related_terms">Related terms</label>
+        <textarea id="related_terms" name="related_terms" rows="3"
+                  aria-describedby="related-hint">{{ form.get('related_terms', '') or (term.related_terms | join('\n') if editing and term.related_terms else '') }}</textarea>
+        <p id="related-hint" class="form-hint">One term per line. Must match an existing glossary term name exactly.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="sources">Sources</label>
+        <textarea id="sources" name="sources" rows="3"
+                  aria-describedby="sources-hint">{{ form.get('sources', '') or (term.sources | join('\n') if editing and term.sources else '') }}</textarea>
+        <p id="sources-hint" class="form-hint">One URL per line.</p>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ "Save changes" if editing else "Add term" }}</button>
+        <a href="{{ url_for('admin.glossary_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

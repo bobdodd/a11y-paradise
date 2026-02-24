@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<nav aria-label="Admin" class="admin-nav">
+    <ul>
+        <li><a href="{{ url_for('admin.dashboard') }}"{% if current_path == '/admin/' %} aria-current="page"{% endif %}>Dashboard</a></li>
+        <li><a href="{{ url_for('admin.glossary_list') }}"{% if '/admin/glossary' in current_path %} aria-current="page"{% endif %}>Glossary</a></li>
+        <li><a href="{{ url_for('admin.reviews_list') }}"{% if '/admin/reviews' in current_path %} aria-current="page"{% endif %}>Reviews</a></li>
+        <li><a href="{{ url_for('admin.logout') }}">Log out</a></li>
+    </ul>
+</nav>
+{% block admin_content %}{% endblock %}
+{% endblock %}

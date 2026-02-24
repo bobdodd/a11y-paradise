@@ -1,0 +1,35 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Manage Reviews — A11y Paradise{% endblock %}
+{% block admin_content %}
+<h2>Manage Literature Reviews</h2>
+<p><a href="{{ url_for('admin.reviews_add') }}" class="btn btn-primary">Add new review</a></p>
+
+{% if reviews %}
+<table class="admin-table">
+    <caption class="sr-only">Literature reviews</caption>
+    <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Authors</th>
+            <th scope="col">Year</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for r in reviews %}
+        <tr>
+            <td>{{ r.title }}</td>
+            <td>{{ r.authors | join(', ') if r.authors else '—' }}</td>
+            <td>{{ r.year or '—' }}</td>
+            <td>
+                <a href="{{ url_for('admin.reviews_edit', review_id=r._id) }}">Edit<span class="sr-only"> {{ r.title }}</span></a>
+                <a href="{{ url_for('admin.reviews_delete', review_id=r._id) }}">Delete<span class="sr-only"> {{ r.title }}</span></a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No literature reviews yet.</p>
+{% endif %}
+{% endblock %}

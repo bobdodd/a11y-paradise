@@ -1,0 +1,9 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Admin Dashboard — A11y Paradise{% endblock %}
+{% block admin_content %}
+<h2>Admin Dashboard</h2>
+<ul>
+    <li><a href="{{ url_for('admin.glossary_list') }}">Glossary terms</a> ({{ glossary_count }})</li>
+    <li><a href="{{ url_for('admin.reviews_list') }}">Literature reviews</a> ({{ review_count }})</li>
+</ul>
+{% endblock %}

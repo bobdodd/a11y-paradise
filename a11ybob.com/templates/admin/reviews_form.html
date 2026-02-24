@@ -1,0 +1,95 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}{{ "Edit" if editing else "Add" }} Review — A11y Paradise{% endblock %}
+{% block admin_content %}
+<h2>{{ "Edit" if editing else "Add" }} Literature Review</h2>
+
+{% if errors %}
+<div class="form-errors" role="alert">
+    <h3>Please fix the following errors:</h3>
+    <ul>
+        {% for error in errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="post" class="admin-form">
+    <div class="form-group">
+        <label for="title">Title <span aria-hidden="true">*</span></label>
+        <input type="text" id="title" name="title"
+               value="{{ form.get('title', '') or (review.title if editing else '') }}"
+               required aria-required="true">
+    </div>
+
+    <div class="form-group">
+        <label for="authors">Authors <span aria-hidden="true">*</span></label>
+        <textarea id="authors" name="authors" rows="3"
+                  required aria-required="true"
+                  aria-describedby="authors-hint">{{ form.get('authors', '') or (review.authors | join('\n') if editing and review.authors else '') }}</textarea>
+        <p id="authors-hint" class="form-hint">One author per line.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="year">Year</label>
+        <input type="number" id="year" name="year"
+               value="{{ form.get('year', '') or (review.year if editing and review.year else '') }}"
+               min="1900" max="2100">
+    </div>
+
+    <div class="form-group">
+        <label for="publication">Publication</label>
+        <input type="text" id="publication" name="publication"
+               value="{{ form.get('publication', '') or (review.publication if editing else '') }}">
+    </div>
+
+    <div class="form-group">
+        <label for="doi">DOI</label>
+        <input type="text" id="doi" name="doi"
+               value="{{ form.get('doi', '') or (review.doi if editing else '') }}">
+    </div>
+
+    <div class="form-group">
+        <label for="tags">Tags</label>
+        <textarea id="tags" name="tags" rows="3"
+                  aria-describedby="tags-hint">{{ form.get('tags', '') or (review.tags | join('\n') if editing and review.tags else '') }}</textarea>
+        <p id="tags-hint" class="form-hint">One tag per line.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="standards_referenced">Standards referenced</label>
+        <textarea id="standards_referenced" name="standards_referenced" rows="3"
+                  aria-describedby="standards-hint">{{ form.get('standards_referenced', '') or (review.standards_referenced | join('\n') if editing and review.standards_referenced else '') }}</textarea>
+        <p id="standards-hint" class="form-hint">One standard per line.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="summary">Summary</label>
+        <textarea id="summary" name="summary" rows="8">{{ form.get('summary', '') or (review.summary if editing else '') }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="key_findings">Key findings</label>
+        <textarea id="key_findings" name="key_findings" rows="8">{{ form.get('key_findings', '') or (review.key_findings if editing else '') }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="relevance">Relevance</label>
+        <textarea id="relevance" name="relevance" rows="6">{{ form.get('relevance', '') or (review.relevance if editing else '') }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="rating">Rating</label>
+        <input type="number" id="rating" name="rating"
+               value="{{ form.get('rating', '') or (review.rating if editing and review.rating else '') }}"
+               min="1" max="5"
+               aria-describedby="rating-hint">
+        <p id="rating-hint" class="form-hint">1 to 5.</p>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ "Save changes" if editing else "Add review" }}</button>
+        <a href="{{ url_for('admin.reviews_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}
