@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: a11y-paradise
+    runtime: python
+    rootDir: a11ybob.com
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB
+        sync: false
+      - key: SECRET_KEY
+        sync: false
