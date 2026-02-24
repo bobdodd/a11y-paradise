@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>a11yBob - Accessibility Training and Tools</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            max-width: 50rem;
+            margin: 0 auto;
+            padding: 2rem;
+            color: #1a1a1a;
+            background: #fff;
+        }
+        a {
+            color: #0055a5;
+        }
+        a:focus {
+            outline: 3px solid #0055a5;
+            outline-offset: 2px;
+        }
+        h1 {
+            margin-bottom: 0.25rem;
+        }
+        .tagline {
+            font-size: 1.2rem;
+            color: #444;
+            margin-top: 0;
+        }
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            padding: 0.5rem 1rem;
+            background: #0055a5;
+            color: #fff;
+            z-index: 100;
+        }
+        .skip-link:focus {
+            left: 0;
+            outline-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header>
+        <h1>a11yBob</h1>
+        <p class="tagline">Accessibility training and tools from 25 years of real-world experience.</p>
+    </header>
+    <nav aria-label="Main">
+        <ul>
+            <li><a href="#about">About</a></li>
+        </ul>
+    </nav>
+    <main id="main">
+        <section id="about">
+            <h2>About</h2>
+            <p>a11yBob is an open-source project sharing practical accessibility knowledge, training materials, and developer tools — built from over 25 years of hands-on experience in digital accessibility, including work at the <a href="https://www.cnib.ca/">Canadian National Institute for the Blind (CNIB)</a>.</p>
+            <p>Source code and training content: <a href="https://github.com/bobdodd/a11y-paradise">a11y-paradise on GitHub</a>.</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Bob Dodd</p>
+    </footer>
+</body>
+</html>
