@@ -100,6 +100,16 @@ def glossary_term(term_id):
 def reviews_index():
     q = request.args.get("q", "").strip()
     tag = request.args.get("tag", "").strip()
+    sort = request.args.get("sort", "newest").strip()
+
+    sort_options = {
+        "newest": ("_id", -1),
+        "year_desc": ("year", -1),
+        "year_asc": ("year", 1),
+        "title": ("title", 1),
+        "author": ("authors", 1),
+    }
+    sort_field, sort_dir = sort_options.get(sort, ("_id", -1))
 
     if q:
         pipeline = [
@@ -124,11 +134,13 @@ def reviews_index():
         ]
         if tag:
             pipeline.append({"$match": {"tags": tag}})
+        if sort != "newest":
+            pipeline.append({"$sort": {sort_field: sort_dir}})
         reviews = list(db.reviews.aggregate(pipeline))
     elif tag:
-        reviews = list(db.reviews.find({"tags": tag}).sort("year", -1))
+        reviews = list(db.reviews.find({"tags": tag}).sort(sort_field, sort_dir))
     else:
-        reviews = list(db.reviews.find().sort("year", -1))
+        reviews = list(db.reviews.find().sort(sort_field, sort_dir))
 
     tags = sorted(db.reviews.distinct("tags"))
     return render_template(
@@ -136,6 +148,7 @@ def reviews_index():
         reviews=reviews,
         query=q,
         selected_tag=tag,
+        selected_sort=sort,
         tags=tags,
     )
 

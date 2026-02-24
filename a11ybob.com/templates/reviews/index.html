@@ -32,6 +32,17 @@
         </select>
     </div>
     {% endif %}
+
+    <div class="filter-row">
+        <label for="review-sort">Sort by:</label>
+        <select id="review-sort" name="sort" onchange="this.form.submit()">
+            <option value="newest"{% if selected_sort == 'newest' %} selected{% endif %}>Recently added</option>
+            <option value="year_desc"{% if selected_sort == 'year_desc' %} selected{% endif %}>Year (newest first)</option>
+            <option value="year_asc"{% if selected_sort == 'year_asc' %} selected{% endif %}>Year (oldest first)</option>
+            <option value="title"{% if selected_sort == 'title' %} selected{% endif %}>Title (A–Z)</option>
+            <option value="author"{% if selected_sort == 'author' %} selected{% endif %}>Author (A–Z)</option>
+        </select>
+    </div>
 </form>
 
 <div aria-live="polite">
