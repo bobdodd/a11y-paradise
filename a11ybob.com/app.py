@@ -8,7 +8,12 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 # MongoDB connection
-client = MongoClient(app.config["MONGO_URI"])
+client = MongoClient(
+    app.config["MONGO_URI"],
+    serverSelectionTimeoutMS=5000,
+    connectTimeoutMS=5000,
+    socketTimeoutMS=10000,
+)
 db = client[app.config["MONGO_DB"]]
 app.config["db"] = db
 
