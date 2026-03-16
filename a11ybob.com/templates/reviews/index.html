@@ -47,7 +47,9 @@
 
 <div aria-live="polite">
     {% if query or selected_tag %}
-    <p class="results-count">{{ reviews|length }} result{{ 's' if reviews|length != 1 }} found{% if query %} for "{{ query }}"{% endif %}{% if selected_tag %} tagged {{ selected_tag }}{% endif %}.</p>
+    <p class="results-count">{{ total }} result{{ 's' if total != 1 }} found{% if query %} for "{{ query }}"{% endif %}{% if selected_tag %} tagged {{ selected_tag }}{% endif %}.</p>
+    {% else %}
+    <p class="results-count">{{ total }} review{{ 's' if total != 1 }}{% if total_pages > 1 %} — page {{ page }} of {{ total_pages }}{% endif %}</p>
     {% endif %}
 </div>
 
@@ -74,6 +76,9 @@
     </li>
     {% endfor %}
 </ul>
+
+{% include "pagination.html" %}
+
 {% elif query or selected_tag %}
 <p>No reviews found. Try a different search or <a href="{{ url_for('reviews_index') }}">browse all reviews</a>.</p>
 {% else %}

@@ -36,7 +36,9 @@
 
 <div aria-live="polite">
     {% if query or selected_category %}
-    <p class="results-count">{{ terms|length }} result{{ 's' if terms|length != 1 }} found{% if query %} for "{{ query }}"{% endif %}{% if selected_category %} in {{ selected_category }}{% endif %}.</p>
+    <p class="results-count">{{ total }} result{{ 's' if total != 1 }} found{% if query %} for "{{ query }}"{% endif %}{% if selected_category %} in {{ selected_category }}{% endif %}.</p>
+    {% else %}
+    <p class="results-count">{{ total }} term{{ 's' if total != 1 }}{% if total_pages > 1 %} — page {{ page }} of {{ total_pages }}{% endif %}</p>
     {% endif %}
 </div>
 
@@ -63,6 +65,9 @@
     </div>
     {% endfor %}
 </dl>
+
+{% include "pagination.html" %}
+
 {% elif query or selected_category %}
 <p>No terms found. Try a different search or <a href="{{ url_for('glossary_index') }}">browse all terms</a>.</p>
 {% else %}

@@ -1,0 +1,46 @@
+{# Reusable pagination nav. Expects: page, total_pages, url_for_page (context processor). #}
+{% if total_pages > 1 %}
+<nav aria-label="Pagination">
+    <ul class="pagination">
+        {% if page > 1 %}
+        <li><a href="{{ url_for_page(page - 1) }}" aria-label="Previous page">&laquo; Previous</a></li>
+        {% else %}
+        <li><span class="pagination-disabled" aria-hidden="true">&laquo; Previous</span></li>
+        {% endif %}
+
+        {% set window = 2 %}
+        {% set start = [1, page - window] | max %}
+        {% set end = [total_pages, page + window] | min %}
+
+        {% if start > 1 %}
+        <li><a href="{{ url_for_page(1) }}">1</a></li>
+        {% if start > 2 %}
+        <li><span class="pagination-ellipsis" aria-hidden="true">&hellip;</span></li>
+        {% endif %}
+        {% endif %}
+
+        {% for p in range(start, end + 1) %}
+        <li>
+            {% if p == page %}
+            <span class="pagination-current" aria-current="page">{{ p }}</span>
+            {% else %}
+            <a href="{{ url_for_page(p) }}">{{ p }}</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+
+        {% if end < total_pages %}
+        {% if end < total_pages - 1 %}
+        <li><span class="pagination-ellipsis" aria-hidden="true">&hellip;</span></li>
+        {% endif %}
+        <li><a href="{{ url_for_page(total_pages) }}">{{ total_pages }}</a></li>
+        {% endif %}
+
+        {% if page < total_pages %}
+        <li><a href="{{ url_for_page(page + 1) }}" aria-label="Next page">Next &raquo;</a></li>
+        {% else %}
+        <li><span class="pagination-disabled" aria-hidden="true">Next &raquo;</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}

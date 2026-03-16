@@ -827,3 +827,99 @@ h2 {
 .admin-table td a + a {
     margin-left: 0.75rem;
 }
+
+/* --- Pagination --- */
+
+.pagination {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    justify-content: center;
+}
+
+.pagination li {
+    margin: 0;
+}
+
+.pagination a,
+.pagination-current,
+.pagination-disabled {
+    display: inline-block;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.95rem;
+    border: 2px solid var(--color-border);
+    border-radius: 4px;
+    text-decoration: none;
+    min-width: 2.5rem;
+    text-align: center;
+}
+
+.pagination a {
+    color: var(--color-link);
+    background: var(--color-bg);
+}
+
+.pagination a:hover {
+    background: var(--color-link);
+    color: #fff;
+    border-color: var(--color-link);
+}
+
+.pagination a:focus {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.pagination-current {
+    background: var(--color-link);
+    color: #fff;
+    border-color: var(--color-link);
+    font-weight: bold;
+}
+
+.pagination-disabled {
+    color: var(--color-text-secondary);
+    background: var(--color-bg-footer);
+    border-color: var(--color-border);
+}
+
+.pagination-ellipsis {
+    display: inline-block;
+    padding: 0.4rem 0.5rem;
+    color: var(--color-text-secondary);
+}
+
+@media (prefers-contrast: more) {
+    .pagination a {
+        border-width: 3px;
+        border-color: var(--color-text);
+    }
+
+    .pagination-current {
+        background: var(--color-text);
+        color: var(--color-bg);
+        border-color: var(--color-text);
+    }
+
+    .pagination-disabled {
+        border-color: var(--color-text);
+        border-width: 3px;
+    }
+}
+
+@media (max-width: 40rem) {
+    .pagination {
+        gap: 0.2rem;
+    }
+
+    .pagination a,
+    .pagination-current,
+    .pagination-disabled {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.9rem;
+        min-width: 2rem;
+    }
+}

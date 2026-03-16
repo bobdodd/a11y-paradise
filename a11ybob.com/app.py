@@ -1,8 +1,12 @@
+import math
 from flask import Flask, render_template, request, session
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from config import Config
 from admin import admin_bp
+
+GLOSSARY_PER_PAGE = 20
+REVIEWS_PER_PAGE = 10
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -25,9 +29,17 @@ app.register_blueprint(admin_bp)
 
 @app.context_processor
 def nav_context():
+    def url_for_page(page_num):
+        args = request.args.copy()
+        args["page"] = page_num
+        return request.path + "?" + "&".join(
+            f"{k}={v}" for k, v in args.items(multi=True)
+        )
+
     return {
         "current_path": request.path,
         "is_admin": session.get("admin", False),
+        "url_for_page": url_for_page,
     }
 
 
@@ -49,6 +61,7 @@ def about():
 def glossary_index():
     q = request.args.get("q", "").strip()
     category = request.args.get("category", "").strip()
+    page = max(1, request.args.get("page", 1, type=int))
 
     if q:
         # Atlas Search full-text query
@@ -67,19 +80,45 @@ def glossary_index():
         ]
         if category:
             pipeline.append({"$match": {"category": category}})
-        terms = list(db.glossary.aggregate(pipeline))
+        all_terms = list(db.glossary.aggregate(pipeline))
+        total = len(all_terms)
+        total_pages = math.ceil(total / GLOSSARY_PER_PAGE) or 1
+        page = min(page, total_pages)
+        skip = (page - 1) * GLOSSARY_PER_PAGE
+        terms = all_terms[skip : skip + GLOSSARY_PER_PAGE]
     elif category:
-        terms = list(db.glossary.find({"category": category}).sort("term", 1))
+        total = db.glossary.count_documents({"category": category})
+        total_pages = math.ceil(total / GLOSSARY_PER_PAGE) or 1
+        page = min(page, total_pages)
+        skip = (page - 1) * GLOSSARY_PER_PAGE
+        terms = list(
+            db.glossary.find({"category": category})
+            .sort("term", 1)
+            .skip(skip)
+            .limit(GLOSSARY_PER_PAGE)
+        )
     else:
-        terms = list(db.glossary.find().sort("term", 1))
+        total = db.glossary.count_documents({})
+        total_pages = math.ceil(total / GLOSSARY_PER_PAGE) or 1
+        page = min(page, total_pages)
+        skip = (page - 1) * GLOSSARY_PER_PAGE
+        terms = list(
+            db.glossary.find()
+            .sort("term", 1)
+            .skip(skip)
+            .limit(GLOSSARY_PER_PAGE)
+        )
 
     categories = sorted(db.glossary.distinct("category"))
     return render_template(
         "glossary/index.html",
         terms=terms,
+        total=total,
         query=q,
         selected_category=category,
         categories=categories,
+        page=page,
+        total_pages=total_pages,
     )
 
 
@@ -106,6 +145,7 @@ def reviews_index():
     q = request.args.get("q", "").strip()
     tag = request.args.get("tag", "").strip()
     sort = request.args.get("sort", "newest").strip()
+    page = max(1, request.args.get("page", 1, type=int))
 
     sort_options = {
         "newest": ("_id", -1),
@@ -141,20 +181,46 @@ def reviews_index():
             pipeline.append({"$match": {"tags": tag}})
         if sort != "newest":
             pipeline.append({"$sort": {sort_field: sort_dir}})
-        reviews = list(db.reviews.aggregate(pipeline))
+        all_reviews = list(db.reviews.aggregate(pipeline))
+        total = len(all_reviews)
+        total_pages = math.ceil(total / REVIEWS_PER_PAGE) or 1
+        page = min(page, total_pages)
+        skip = (page - 1) * REVIEWS_PER_PAGE
+        reviews = all_reviews[skip : skip + REVIEWS_PER_PAGE]
     elif tag:
-        reviews = list(db.reviews.find({"tags": tag}).sort(sort_field, sort_dir))
+        total = db.reviews.count_documents({"tags": tag})
+        total_pages = math.ceil(total / REVIEWS_PER_PAGE) or 1
+        page = min(page, total_pages)
+        skip = (page - 1) * REVIEWS_PER_PAGE
+        reviews = list(
+            db.reviews.find({"tags": tag})
+            .sort(sort_field, sort_dir)
+            .skip(skip)
+            .limit(REVIEWS_PER_PAGE)
+        )
     else:
-        reviews = list(db.reviews.find().sort(sort_field, sort_dir))
+        total = db.reviews.count_documents({})
+        total_pages = math.ceil(total / REVIEWS_PER_PAGE) or 1
+        page = min(page, total_pages)
+        skip = (page - 1) * REVIEWS_PER_PAGE
+        reviews = list(
+            db.reviews.find()
+            .sort(sort_field, sort_dir)
+            .skip(skip)
+            .limit(REVIEWS_PER_PAGE)
+        )
 
     tags = sorted(db.reviews.distinct("tags"))
     return render_template(
         "reviews/index.html",
         reviews=reviews,
+        total=total,
         query=q,
         selected_tag=tag,
         selected_sort=sort,
         tags=tags,
+        page=page,
+        total_pages=total_pages,
     )
 
 
