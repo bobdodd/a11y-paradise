@@ -1,0 +1,35 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Manage Articles — A11y Paradise{% endblock %}
+{% block admin_content %}
+<h2>Manage Articles</h2>
+<p><a href="{{ url_for('admin.articles_add') }}" class="btn btn-primary">Add new article</a></p>
+
+{% if articles %}
+<table class="admin-table">
+    <caption class="sr-only">Articles</caption>
+    <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Published</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for a in articles %}
+        <tr>
+            <td>{{ a.title }}</td>
+            <td>{{ a.author or '—' }}</td>
+            <td>{{ a.published_date or '—' }}</td>
+            <td>
+                <a href="{{ url_for('admin.articles_edit', article_id=a._id) }}">Edit<span class="sr-only"> {{ a.title }}</span></a>
+                <a href="{{ url_for('admin.articles_delete', article_id=a._id) }}">Delete<span class="sr-only"> {{ a.title }}</span></a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No articles yet.</p>
+{% endif %}
+{% endblock %}

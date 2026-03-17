@@ -166,6 +166,10 @@ print('Done.')
 - Connect findings to real-world accessibility work (standards compliance, user testing, organizational practices)
 - Use plain language; explain technical concepts where needed
 
+## Glossary Terms from Literature Reviews
+
+After adding a literature review, check whether key terms from the paper are already in the glossary. Add any missing terms that are important to understanding the paper's subject matter — particularly terms related to disabilities, conditions, assistive technologies, methodologies, or accessibility concepts. Use the same insert pattern as "Adding Glossary Entries via Claude Code" above. Check existing terms first with `db.glossary.find_one({'term': ...})` to avoid duplicates.
+
 ## Deployment
 
 Render auto-deploys from GitHub `main` branch. Config in `render.yaml`. Environment variables (`MONGO_URI`, `MONGO_DB`, `SECRET_KEY`) are set in Render dashboard, not committed.

@@ -1,4 +1,6 @@
 import math
+import markdown as md
+from markupsafe import Markup
 from flask import Flask, render_template, request, session
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -7,6 +9,7 @@ from admin import admin_bp
 
 GLOSSARY_PER_PAGE = 20
 REVIEWS_PER_PAGE = 10
+ARTICLES_PER_PAGE = 10
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -23,6 +26,15 @@ app.config["db"] = db
 
 # Register admin blueprint
 app.register_blueprint(admin_bp)
+
+
+# --- Markdown filter ---
+
+@app.template_filter("markdown")
+def markdown_filter(text):
+    if not text:
+        return ""
+    return Markup(md.markdown(text, extensions=["extra", "smarty"]))
 
 
 # --- Context processor for nav highlighting ---
@@ -230,6 +242,91 @@ def review_detail(review_id):
     if not review:
         return render_template("404.html"), 404
     return render_template("reviews/review.html", review=review)
+
+
+# --- Articles ---
+
+@app.route("/articles")
+def articles_index():
+    q = request.args.get("q", "").strip()
+    tag = request.args.get("tag", "").strip()
+    sort = request.args.get("sort", "newest").strip()
+    page = max(1, request.args.get("page", 1, type=int))
+
+    sort_options = {
+        "newest": ("published_date", -1),
+        "oldest": ("published_date", 1),
+        "title": ("title", 1),
+    }
+    sort_field, sort_dir = sort_options.get(sort, ("published_date", -1))
+
+    if q:
+        pipeline = [
+            {
+                "$search": {
+                    "index": "articles_search",
+                    "text": {
+                        "query": q,
+                        "path": ["title", "summary", "content", "tags"],
+                        "fuzzy": {"maxEdits": 1},
+                    },
+                }
+            },
+            {"$addFields": {"score": {"$meta": "searchScore"}}},
+        ]
+        if tag:
+            pipeline.append({"$match": {"tags": tag}})
+        if sort != "newest":
+            pipeline.append({"$sort": {sort_field: sort_dir}})
+        all_articles = list(db.articles.aggregate(pipeline))
+        total = len(all_articles)
+        total_pages = math.ceil(total / ARTICLES_PER_PAGE) or 1
+        page = min(page, total_pages)
+        skip = (page - 1) * ARTICLES_PER_PAGE
+        articles = all_articles[skip : skip + ARTICLES_PER_PAGE]
+    elif tag:
+        total = db.articles.count_documents({"tags": tag})
+        total_pages = math.ceil(total / ARTICLES_PER_PAGE) or 1
+        page = min(page, total_pages)
+        skip = (page - 1) * ARTICLES_PER_PAGE
+        articles = list(
+            db.articles.find({"tags": tag})
+            .sort(sort_field, sort_dir)
+            .skip(skip)
+            .limit(ARTICLES_PER_PAGE)
+        )
+    else:
+        total = db.articles.count_documents({})
+        total_pages = math.ceil(total / ARTICLES_PER_PAGE) or 1
+        page = min(page, total_pages)
+        skip = (page - 1) * ARTICLES_PER_PAGE
+        articles = list(
+            db.articles.find()
+            .sort(sort_field, sort_dir)
+            .skip(skip)
+            .limit(ARTICLES_PER_PAGE)
+        )
+
+    tags = sorted(db.articles.distinct("tags"))
+    return render_template(
+        "articles/index.html",
+        articles=articles,
+        total=total,
+        query=q,
+        selected_tag=tag,
+        selected_sort=sort,
+        tags=tags,
+        page=page,
+        total_pages=total_pages,
+    )
+
+
+@app.route("/articles/<slug>")
+def article_detail(slug):
+    article = db.articles.find_one({"slug": slug})
+    if not article:
+        return render_template("404.html"), 404
+    return render_template("articles/article.html", article=article)
 
 
 # --- Error handlers ---

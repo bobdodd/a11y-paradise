@@ -79,6 +79,7 @@ def dashboard():
         "admin/dashboard.html",
         glossary_count=db.glossary.count_documents({}),
         review_count=db.reviews.count_documents({}),
+        article_count=db.articles.count_documents({}),
     )
 
 
@@ -272,6 +273,127 @@ def reviews_delete(review_id):
         delete_url=url_for("admin.reviews_delete", review_id=review_id),
         cancel_url=url_for("admin.reviews_list"),
     )
+
+
+# --- Articles CRUD ---
+
+
+@admin_bp.route("/articles")
+@admin_required
+def articles_list():
+    db = get_db()
+    articles = list(db.articles.find().sort("published_date", -1))
+    return render_template("admin/articles_list.html", articles=articles)
+
+
+@admin_bp.route("/articles/add", methods=["GET", "POST"])
+@admin_required
+def articles_add():
+    db = get_db()
+    if request.method == "POST":
+        doc, errors = _validate_article(request.form)
+        if errors:
+            return render_template(
+                "admin/articles_form.html",
+                errors=errors,
+                form=request.form,
+                editing=False,
+            )
+        doc["created"] = today()
+        doc["updated"] = today()
+        db.articles.insert_one(doc)
+        flash(f"Article \u2018{doc['title']}\u2019 added.", "success")
+        return redirect(url_for("admin.articles_list"))
+    return render_template(
+        "admin/articles_form.html", errors=[], form={}, editing=False
+    )
+
+
+@admin_bp.route("/articles/edit/<article_id>", methods=["GET", "POST"])
+@admin_required
+def articles_edit(article_id):
+    db = get_db()
+    existing = db.articles.find_one({"_id": ObjectId(article_id)})
+    if not existing:
+        flash("Article not found.", "error")
+        return redirect(url_for("admin.articles_list"))
+
+    if request.method == "POST":
+        doc, errors = _validate_article(request.form)
+        if errors:
+            return render_template(
+                "admin/articles_form.html",
+                errors=errors,
+                form=request.form,
+                editing=True,
+                article=existing,
+            )
+        doc["updated"] = today()
+        db.articles.update_one({"_id": ObjectId(article_id)}, {"$set": doc})
+        flash(f"Article \u2018{doc['title']}\u2019 updated.", "success")
+        return redirect(url_for("admin.articles_list"))
+
+    return render_template(
+        "admin/articles_form.html", errors=[], form={}, editing=True, article=existing
+    )
+
+
+@admin_bp.route("/articles/delete/<article_id>", methods=["GET", "POST"])
+@admin_required
+def articles_delete(article_id):
+    db = get_db()
+    article = db.articles.find_one({"_id": ObjectId(article_id)})
+    if not article:
+        flash("Article not found.", "error")
+        return redirect(url_for("admin.articles_list"))
+
+    if request.method == "POST":
+        db.articles.delete_one({"_id": ObjectId(article_id)})
+        flash(f"Article \u2018{article['title']}\u2019 deleted.", "success")
+        return redirect(url_for("admin.articles_list"))
+
+    return render_template(
+        "admin/confirm_delete.html",
+        item_type="article",
+        item_name=article["title"],
+        delete_url=url_for("admin.articles_delete", article_id=article_id),
+        cancel_url=url_for("admin.articles_list"),
+    )
+
+
+def _slugify(text):
+    """Generate a URL-friendly slug from text."""
+    import re
+    slug = text.lower().strip()
+    slug = re.sub(r"[^\w\s-]", "", slug)
+    slug = re.sub(r"[\s_]+", "-", slug)
+    slug = re.sub(r"-+", "-", slug)
+    return slug.strip("-")
+
+
+def _validate_article(form):
+    errors = []
+    title = form.get("title", "").strip()
+    if not title:
+        errors.append("Title is required.")
+    content = form.get("content", "").strip()
+    if not content:
+        errors.append("Content is required.")
+
+    slug = form.get("slug", "").strip()
+    if not slug:
+        slug = _slugify(title)
+
+    doc = {
+        "title": title,
+        "slug": slug,
+        "author": form.get("author", "").strip() or "Bob Dodd",
+        "published_date": form.get("published_date", "").strip(),
+        "tags": parse_lines(form.get("tags", "")),
+        "summary": form.get("summary", "").strip(),
+        "content": content,
+    }
+    return doc, errors
 
 
 def _validate_review(form):

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} — Articles — A11y Paradise{% endblock %}
+
+{% block content %}
+<nav aria-label="Breadcrumb" class="breadcrumb">
+    <ol>
+        <li><a href="{{ url_for('articles_index') }}">Articles</a></li>
+        <li aria-current="page">{{ article.title }}</li>
+    </ol>
+</nav>
+
+<article class="article-full">
+    <header>
+        <h2>{{ article.title }}</h2>
+        <p class="review-meta">
+            By {{ article.author }}
+            {% if article.published_date %} — {{ article.published_date }}{% endif %}
+        </p>
+    </header>
+
+    <div class="article-content">
+        {{ article.content | markdown }}
+    </div>
+
+    {% if article.tags %}
+    <footer class="term-meta">
+        <h3>Tags</h3>
+        <ul class="tag-list">
+            {% for tag in article.tags %}
+            <li><a href="{{ url_for('articles_index', tag=tag) }}">{{ tag }}</a></li>
+            {% endfor %}
+        </ul>
+    </footer>
+    {% endif %}
+</article>
+{% endblock %}

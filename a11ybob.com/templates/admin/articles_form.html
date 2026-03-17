@@ -1,0 +1,74 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}{{ "Edit" if editing else "Add" }} Article — A11y Paradise{% endblock %}
+{% block admin_content %}
+<h2>{{ "Edit" if editing else "Add" }} Article</h2>
+
+{% if errors %}
+<div class="form-errors" role="alert">
+    <h3>Please fix the following errors:</h3>
+    <ul>
+        {% for error in errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="post" class="admin-form">
+    <div class="form-group">
+        <label for="title">Title <span aria-hidden="true">*</span></label>
+        <input type="text" id="title" name="title"
+               value="{{ form.get('title', '') or (article.title if editing else '') }}"
+               required aria-required="true">
+    </div>
+
+    <div class="form-group">
+        <label for="slug">Slug</label>
+        <input type="text" id="slug" name="slug"
+               value="{{ form.get('slug', '') or (article.slug if editing else '') }}"
+               aria-describedby="slug-hint">
+        <p id="slug-hint" class="form-hint">URL-friendly identifier. Auto-generated from title if left blank.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="author">Author</label>
+        <input type="text" id="author" name="author"
+               value="{{ form.get('author', '') or (article.author if editing else 'Bob Dodd') }}"
+               aria-describedby="author-hint">
+        <p id="author-hint" class="form-hint">Defaults to Bob Dodd if left blank.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="published_date">Published date</label>
+        <input type="date" id="published_date" name="published_date"
+               value="{{ form.get('published_date', '') or (article.published_date if editing else '') }}">
+    </div>
+
+    <div class="form-group">
+        <label for="tags">Tags</label>
+        <textarea id="tags" name="tags" rows="3"
+                  aria-describedby="tags-hint">{{ form.get('tags', '') or (article.tags | join('\n') if editing and article.tags else '') }}</textarea>
+        <p id="tags-hint" class="form-hint">One tag per line.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="summary">Summary</label>
+        <textarea id="summary" name="summary" rows="3"
+                  aria-describedby="summary-hint">{{ form.get('summary', '') or (article.summary if editing else '') }}</textarea>
+        <p id="summary-hint" class="form-hint">Brief description shown on the articles index page.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="content">Content <span aria-hidden="true">*</span></label>
+        <textarea id="content" name="content" rows="20"
+                  required aria-required="true"
+                  aria-describedby="content-hint">{{ form.get('content', '') or (article.content if editing else '') }}</textarea>
+        <p id="content-hint" class="form-hint">Full article text in Markdown format.</p>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ "Save changes" if editing else "Add article" }}</button>
+        <a href="{{ url_for('admin.articles_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

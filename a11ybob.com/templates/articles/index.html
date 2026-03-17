@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Articles — A11y Paradise{% endblock %}
+
+{% block content %}
+<h2>Articles</h2>
+<p>Original articles on digital accessibility, research, and practice.</p>
+
+<form class="search-form" action="{{ url_for('articles_index') }}" method="get" role="search" aria-label="Search articles">
+    <div class="search-row">
+        <label for="article-search" class="sr-only">Search articles</label>
+        <input
+            type="search"
+            id="article-search"
+            name="q"
+            value="{{ query }}"
+            placeholder="Search articles..."
+            aria-describedby="article-search-hint"
+        >
+        <button type="submit">Search</button>
+    </div>
+    <p id="article-search-hint" class="search-hint">Search across titles, summaries, and content.</p>
+
+    {% if tags %}
+    <div class="filter-row">
+        <label for="article-tag">Filter by tag:</label>
+        <select id="article-tag" name="tag" onchange="this.form.submit()">
+            <option value="">All tags</option>
+            {% for t in tags %}
+            <option value="{{ t }}"{% if t == selected_tag %} selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+
+    <div class="filter-row">
+        <label for="article-sort">Sort by:</label>
+        <select id="article-sort" name="sort" onchange="this.form.submit()">
+            <option value="newest"{% if selected_sort == 'newest' %} selected{% endif %}>Newest first</option>
+            <option value="oldest"{% if selected_sort == 'oldest' %} selected{% endif %}>Oldest first</option>
+            <option value="title"{% if selected_sort == 'title' %} selected{% endif %}>Title (A–Z)</option>
+        </select>
+    </div>
+</form>
+
+<div aria-live="polite">
+    {% if query or selected_tag %}
+    <p class="results-count">{{ total }} result{{ 's' if total != 1 }} found{% if query %} for "{{ query }}"{% endif %}{% if selected_tag %} tagged {{ selected_tag }}{% endif %}.</p>
+    {% else %}
+    <p class="results-count">{{ total }} article{{ 's' if total != 1 }}{% if total_pages > 1 %} — page {{ page }} of {{ total_pages }}{% endif %}</p>
+    {% endif %}
+</div>
+
+{% if articles %}
+<ul class="review-list">
+    {% for a in articles %}
+    <li class="review-card">
+        <h3><a href="{{ url_for('article_detail', slug=a.slug) }}">{{ a.title }}</a></h3>
+        <p class="review-meta">
+            {{ a.author }}
+            {% if a.published_date %} — {{ a.published_date }}{% endif %}
+        </p>
+        {% if a.summary %}
+        <p>{{ a.summary }}</p>
+        {% endif %}
+        {% if a.tags %}
+        <ul class="tag-list" aria-label="Tags">
+            {% for tag in a.tags %}
+            <li><a href="{{ url_for('articles_index', tag=tag) }}">{{ tag }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+
+{% include "pagination.html" %}
+
+{% elif query or selected_tag %}
+<p>No articles found. Try a different search or <a href="{{ url_for('articles_index') }}">browse all articles</a>.</p>
+{% else %}
+<p>No articles have been published yet.</p>
+{% endif %}
+{% endblock %}
