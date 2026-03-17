@@ -11,7 +11,7 @@
 </nav>
 
 <article>
-    <h2>{{ review.title }}</h2>
+    <h1>{{ review.title }}</h1>
 
     <dl class="review-details">
         <dt>Authors</dt>
@@ -40,28 +40,28 @@
 
     {% if review.summary %}
     <section>
-        <h3>Summary</h3>
+        <h2>Summary</h2>
         <div>{{ review.summary }}</div>
     </section>
     {% endif %}
 
     {% if review.key_findings %}
     <section>
-        <h3>Key Findings</h3>
+        <h2>Key Findings</h2>
         <div>{{ review.key_findings }}</div>
     </section>
     {% endif %}
 
     {% if review.relevance %}
     <section>
-        <h3>Relevance to Practice</h3>
+        <h2>Relevance to Practice</h2>
         <div>{{ review.relevance }}</div>
     </section>
     {% endif %}
 
     {% if review.tags %}
     <div class="term-meta">
-        <h3>Tags</h3>
+        <h2>Tags</h2>
         <ul class="tag-list">
             {% for tag in review.tags %}
             <li><a href="{{ url_for('reviews_index', tag=tag) }}">{{ tag }}</a></li>
